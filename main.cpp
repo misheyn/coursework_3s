@@ -1,75 +1,248 @@
 #include <iostream>
 #include <fstream>
 #include "Tree.h"
-//#include "TreeNode.h"
+#include "Matrix.h"
+
+// TODO in Tree binOut needs to be fixed
+// TODO check saveToBin
+// TODO remove trash
+// TODO need to small fix some of func
+
+int menu();
+
+int insert(Tree<Matrix> &tree);
+
+int enable(Tree<Matrix> &tree);
+
+int extract(Tree<Matrix> &tree);
+
+int sort(Tree<Matrix> &tree);
+
+int includeWithSort(Tree<Matrix> &tree);
+
+int saveToBin(Tree<Matrix> &tree);
+
+int loadFromBin(Tree<Matrix> &tree);
 
 int main() {
-    Tree<Matrix> tr;
-    Matrix arr[10];
+    int status;
+    status = menu();
+    return status;
+}
 
+int menu() {
+    Tree<Matrix> tree;
+    Matrix arr[50];
     ifstream fileOut;
+    int life = 1, ch = -1, check;
+
     fileOut.open("../text.txt");
     if (!fileOut.is_open()) {
         std::cerr << "File open error" << "\n";
         exit(1);
+    } else {
+        for (int i = 0; !fileOut.eof(); i++) {
+            fileOut >> arr[i];
+            tree.insertValue(&arr[i]);
+        }
+        fileOut.close();
+
+        while (life) {
+            cout << "Choose what you want to do:" << endl;
+            cout << "[0]: Exit" << endl;
+            cout << "[1]: Inserting a value into a tree" << endl;
+            cout << "[2]: Enabling by logical number" << endl;
+            cout << "[3]: Extract by logical number" << endl;
+            cout << "[4]: Sorting" << endl;
+            cout << "[5]: Inclusion with preservation of order" << endl;
+            cout << "[6]: Saving string objects to a binary file" << endl;
+            cout << "[7]: Loading string objects from a binary file" << endl;
+            cout << "[8]: Print tree" << endl;
+            cin >> ch;
+            switch (ch) {
+                case 0:
+                    life = 0;
+                    check = 0;
+                    break;
+                case 1:
+                    check = insert(tree);
+                    break;
+                case 2:
+                    check = enable(tree);
+                    break;
+                case 3:
+                    check = extract(tree);
+                    break;
+                case 4:
+                    check = sort(tree);
+                    break;
+                case 5:
+                    check = includeWithSort(tree);
+                    break;
+                case 6:
+                    check = saveToBin(tree);
+                    break;
+                case 7:
+                    check = loadFromBin(tree);
+                    break;
+                case 8:
+                    tree.printTree();
+                    break;
+                default:
+                    if (!isdigit(ch) || isalpha(ch)) {
+                        cout << "There is no such option. Enter a number between 0 and 8" << endl;
+                        check = 1;
+                    }
+                    break;
+            }
+        }
     }
-    for (auto &i: arr) {
-        fileOut >> i;
+//    fileOut >> tree;
+//    tree.printTree();
+    return check;
+}
+
+int insert(Tree<Matrix> &tree) {
+    int flag = 0, order = 0, k = 0, size;
+    cout << "Enter the matrix in the format: first its dimension, then the matrix itself" << endl;
+    cin >> order;
+    auto *mtr = new Matrix(order);
+    double array[order * order];
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++, k++) {
+            cin >> array[k];
+            mtr->SetMatrix(i, j, array[k]);
+        }
     }
-    fileOut.close();
+    size = tree.getNumberOfValues();
+    tree.insertValue(mtr);
+    if (size + 1 != tree.getNumberOfValues()) flag = 1;
+    return flag;
+}
 
-    for (auto &i: arr) {
-        tr.insertValue(&i);
+int enable(Tree<Matrix> &tree) {
+    int flag = 0, order = 0, k = 0, size, number;
+
+    cout << "Enter the number of the tree object, instead of which you want to add a new matrix" << endl;
+    cout << "Now there are " << tree.getNumberOfValues() << " objects in the tree" << endl;
+    cin >> number;
+    cout << "Enter the matrix in the format: first its dimension, then the matrix itself" << endl;
+    cin >> order;
+    auto *mtr = new Matrix(order);
+    double array[order * order];
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++, k++) {
+            cin >> array[k];
+            mtr->SetMatrix(i, j, array[k]);
+        }
     }
+    size = tree.getNumberOfValues();
+    tree.includeByInd(mtr, number);
+    if (size + 1 != tree.getNumberOfValues()) flag = 1;
+    return flag;
+}
 
-    Matrix a(2);
-    int arr_a[4] = {3, 7, 12, 9};
-    int k = 0;
-    for (int i = 0; i < 2; i++)
-        for (int j = 0; j < 2; j++, k++)
-            a.SetMatrix(i, j, arr_a[k]);
+int extract(Tree<Matrix> &tree) {
+    int flag = 0, size, number;
 
-//   tr[0] = a;
-//    tr.printTree();
-//    TreeNode node = tr[1];
-//    cout << endl << tr[3];
-    cout << "*****************************" << endl;
-//    cout << tr.extractByInd(3);
-    tr.sortTree();
-    tr.printTree();
-//    cout << tr[0].summary() << endl;
-//    cout << tr[1].summary() << endl;
-//    cout << endl << tr[3];
+    cout << "Enter the number of the tree object you want to extract" << endl;
+    cout << "Now there are " << tree.getNumberOfValues() << " objects in the tree" << endl;
+    cin >> number;
 
-//    tr.printStats();
+    size = tree.getNumberOfValues();
+    cout << "Object number " << number << endl;
+    cout << tree.extractByInd(number) << endl;
 
-    /* ofstream binFileIn;
-     binFileIn.open("../binText.dat", ios::binary);
-     if (!binFileIn.is_open()) {
-         std::cerr << "File open error" << "\n";
-         exit(1);
-     }
- //    BinaryIn(binFileIn, a);
-     tr.saveToBin(binFileIn);
-     binFileIn.close();
+    if (size - 1 != tree.getNumberOfValues()) flag = 1;
+    return flag;
+}
 
-     ifstream binFileOut;
-     binFileOut.open("../binText.dat", ios::binary);
-     if (!binFileOut.is_open()) {
-         std::cerr << "File open error" << "\n";
-         exit(1);
-     }
-     tr.loadFromBin(binFileOut);
-     binFileOut.close();*/
-//    Tree<int> tr2;
-//    int array[10] = {5, 2, 8, 9, 1, 10, 3, 7, 4, 6};
-//    for (int i = 0; i < 10; ++i) {
-//        tr2.insertValue(&array[i]);
-//    }
-//    int t = 3;
-////    tr2.insertValue(&t);
-//    tr2.sortTree();
-//    tr2.insertWithOrder(&t);
-//    tr2.printTree();
-    return 0;
+int sort(Tree<Matrix> &tree) {
+    int flag = 0, size;
+
+    size = tree.getNumberOfValues();
+    tree.sortTree();
+
+    if (size != tree.getNumberOfValues()) flag = 1;
+    else cout << "Sorted\n\n";
+    return flag;
+}
+
+int includeWithSort(Tree<Matrix> &tree) {
+    int flag = 0, order = 0, k = 0, size;
+    cout << "Enter the matrix in the format: first its dimension, then the matrix itself" << endl;
+    cin >> order;
+    auto *mtr = new Matrix(order);
+    double array[order * order];
+    for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++, k++) {
+            cin >> array[k];
+            mtr->SetMatrix(i, j, array[k]);
+        }
+    }
+    size = tree.getNumberOfValues();
+    tree.insertWithOrder(mtr);
+    if (size + 1 != tree.getNumberOfValues()) flag = 1;
+    return flag;
+}
+
+int saveToBin(Tree<Matrix> &tree) {
+    int flag = 0, chs, order, k = 0;
+    ofstream binFileIn;
+
+    cout << "Choose what you want to do:\n"
+            "write the entire tree to a file (1)\nadd new string objects (2)\n";
+    cin >> chs;
+    if (chs == 1) {
+        binFileIn.open("../binText.dat", ios::binary);
+        if (!binFileIn.is_open()) {
+            std::cerr << "File open error" << "\n";
+            flag = 1;
+        }
+        tree.saveToBin(binFileIn);
+        binFileIn.close();
+    } else if (chs == 2) {
+        binFileIn.open("../binText.dat", ios::binary | ios::app);
+        if (!binFileIn.is_open()) {
+            std::cerr << "File open error" << "\n";
+            flag = 1;
+        }
+        cout << "Enter the matrix in the format: first its dimension, then the matrix itself" << endl;
+        cin >> order;
+        auto *mtr = new Matrix(order);
+        double array[order * order];
+        for (int i = 0; i < order; i++) {
+            for (int j = 0; j < order; j++, k++) {
+                cin >> array[k];
+                mtr->SetMatrix(i, j, array[k]);
+            }
+        }
+//        binFileIn << *mtr << endl;
+        BinaryIn(binFileIn, *mtr);
+        binFileIn.close();
+    }
+    return flag;
+}
+
+int loadFromBin(Tree<Matrix> &tree) {
+    int flag = 0;
+    long long file_size;
+
+    ifstream binFileOut;
+    binFileOut.open("../binText.dat", ios::binary);
+    binFileOut.seekg(0, ios::end);
+    file_size = binFileOut.tellg();
+    if (file_size == 0) {
+        cout << "The file is empty. Save something there first\n";
+        flag = 1;
+    }
+    if (!binFileOut.is_open()) {
+        std::cerr << "File open error" << "\n";
+        flag = 1;
+    }
+    tree.loadFromBin(binFileOut);
+    binFileOut.close();
+
+    tree.printTree();
+    return flag;
 }

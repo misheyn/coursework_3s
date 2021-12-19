@@ -2,6 +2,7 @@
 #define COURSEWORK_3S_TREE_H
 
 #include "TreeNode.h"
+#include <iostream>
 
 using namespace std;
 
@@ -20,11 +21,11 @@ public:
 
     void printTree();
 
-    void printStats();
+    int getNumberOfValues();
 
     T operator[](int i);
 
-    T includeByInd(T *data, int i);
+    void includeByInd(T *data, int i);
 
     T extractByInd(int i);
 
@@ -33,6 +34,9 @@ public:
     ofstream &saveToBin(ofstream &os);
 
     ifstream &loadFromBin(ifstream &is);
+
+//    template<typename T1>
+//    friend istream &operator>>(istream &, Tree<T1> *);
 
 private:
     TreeNode<T> *root;
@@ -145,17 +149,20 @@ int Tree<T>::addValue(TreeNode<T> **node, T *data) {
 template<typename T>
 int Tree<T>::checkNode(TreeNode<T> **node, T *data, int st) {
     int check = 1;
+    int len;
     TreeNode<T> *tmp = *node;
     if (tmp == nullptr) {
         createEndNode(&tmp, data);
     } else if (lenArray(tmp) < N && tmp->count == 0) {
-        tmp->obj[lenArray(tmp)] = data;
-        tmp->obj[lenArray(tmp) + 1] = nullptr;
+        len = lenArray(tmp);
+        tmp->obj[len] = data;
+        tmp->obj[len + 1] = nullptr;
     } else if (tmp->left == nullptr) {
         createInterNode(tmp, data, st);
     } else if (lenArray(tmp->right) < N && tmp->right->count == 0) {
-        tmp->right->obj[lenArray(tmp->right)] = data;
-        tmp->right->obj[lenArray(tmp->right) + 1] = nullptr;
+        len = lenArray(tmp->right);
+        tmp->right->obj[len] = data;
+        tmp->right->obj[len + 1] = nullptr;
     } else {
         check = 0;
     }
@@ -167,11 +174,13 @@ template<typename T>
 void Tree<T>::createInterNode(TreeNode<T> *node, T *data, int st) {
     auto *newNode = new TreeNode<T>;
 
-    topsCount++;
+//    topsCount++;
     for (int i = 0; i < lenArray(node) + 1; ++i) {
         newNode->obj[i] = node->obj[i];
+
     }
-    for (int i = 0; i < lenArray(node) + 1; ++i) {
+    int len = lenArray(node);
+    for (int i = 0; i < len + 1; ++i) {
         node->obj[i] = nullptr;
     }
 
@@ -186,9 +195,11 @@ void Tree<T>::createInterNode(TreeNode<T> *node, T *data, int st) {
 
 template<typename T>
 void Tree<T>::createEndNode(TreeNode<T> **node, T *val) {
+    topsCount++;
     *node = new TreeNode<T>;
-    (*node)->obj[lenArray(*node)] = val;
-    (*node)->obj[lenArray(*node) + 1] = nullptr;
+    int len = lenArray(*node);
+    (*node)->obj[len] = val;
+    (*node)->obj[len + 1] = nullptr;
 }
 
 template<typename T>
@@ -199,24 +210,22 @@ void Tree<T>::printTree() {
 template<typename T>
 void Tree<T>::print(TreeNode<T> *node) {
     if (node != nullptr) {
-        if (lenArray(node) > 0) {
-            for (int i = 0; i < lenArray(node); ++i) {
-                if (node->obj[i] != nullptr)
-                    cout << *(node->obj[i]) << endl;
+        for (int i = 0; i < N && node->count == 0; ++i) {
+            if (node->obj[i] != nullptr) {
+                cout << *(node->obj[i]);
+            } else {
+                cout << "nullptr\n";
             }
             cout << endl << endl;
         }
-
         print(node->left);
         print(node->right);
     }
 }
 
 template<typename T>
-void Tree<T>::printStats() {
-    printSt(root);
-    cout << endl << topsCount;
-    cout << endl << valueCount;
+int Tree<T>::getNumberOfValues() {
+    return valueCount;
 }
 
 template<typename T>
@@ -259,11 +268,24 @@ T Tree<T>::operator[](int i) {
     return *(node->obj[pos]);
 }
 
+/*template<typename T>
+istream &operator>>(istream &is, Tree<T> *tree) {
+    T arr[100];
+    int i = 0;
+    while (!is.eof()) {
+        is >> arr[i];
+        (*tree).insertValue(&arr[i]);
+//    tree.printTree();
+        i++;
+    }
+    return is;
+}*/
+
 template<typename T>
-T Tree<T>::includeByInd(T *data, int i) {
+void Tree<T>::includeByInd(T *data, int i) {
     int tmp = 0, pos = 0;
     TreeNode<T> *node = findInd(root, &tmp, i, &pos);
-    return *(node->obj[pos] = data);
+    node->obj[pos] = data;
 }
 
 template<typename T>
@@ -279,22 +301,6 @@ template<typename T>
 void Tree<T>::sortTree() {
     sort(root);
 }
-
-/*template<typename T>
-void Tree<T>::fillArr(TreeNode<T> *node, T *array, int *len) {
-    if (node != nullptr) {
-        if (lenArray(node) > 0) {
-            for (int i = 0; i < lenArray(node); ++i) {
-                if (node->obj[i] != nullptr) {
-                    array[*len] = *(node->obj[i]);
-                    (*len)++;
-                }
-            }
-        }
-        fillArr(node->left, array, len);
-        fillArr(node->right, array, len);
-    }
-}*/
 
 template<typename T>
 void Tree<T>::sort(TreeNode<T> *node) {
@@ -331,23 +337,6 @@ void Tree<T>::bubbleSort(TreeNode<T> **node) {
     }
 }
 
-/*template<typename T>
-void Tree<T>::fillTree(TreeNode<T> *node, T *array, int *len) {
-    if (node != nullptr) {
-        if (lenArray(node) > 0) {
-            for (int i = 0; i < lenArray(node); ++i) {
-                if (node->obj[i] != nullptr) {
-                    *(node->obj[i]) = array[*len];
-                    (*len)++;
-                }
-            }
-        }
-        fillTree(node->left, array, len);
-        fillTree(node->right, array, len);
-    }
-
-}*/
-
 template<typename T>
 ofstream &Tree<T>::saveToBin(ofstream &os) {
     binIn(os, root);
@@ -363,12 +352,10 @@ ifstream &Tree<T>::loadFromBin(ifstream &is) {
 template<typename T>
 ofstream &Tree<T>::binIn(ofstream &os, TreeNode<T> *node) {
     if (node != nullptr) {
-        if (lenArray(node) > 0) {
             for (int i = 0; i < lenArray(node); ++i) {
-                if (node->obj[i] != nullptr)
+//                if (node->obj[i] != nullptr)
                     os.write((char *) &*(node->obj[i]), sizeof(double));
             }
-        }
         binIn(os, node->left);
         binIn(os, node->right);
     }
@@ -377,17 +364,20 @@ ofstream &Tree<T>::binIn(ofstream &os, TreeNode<T> *node) {
 
 template<typename T>
 ifstream &Tree<T>::binOut(ifstream &is, TreeNode<T> *node) {
+
+    while (!is.eof()) {
+//        is.read((char *) &*(node->obj[i]), sizeof(double));
+    }
     if (node != nullptr) {
-        if (lenArray(node) > 0) {
             for (int i = 0; i < lenArray(node); ++i) {
                 if (node->obj[i] != nullptr)
                     is.read((char *) &*(node->obj[i]), sizeof(double));
             }
-        }
         binOut(is, node->left);
         binOut(is, node->right);
     }
     return is;
 }
+
 
 #endif //COURSEWORK_3S_TREE_H
