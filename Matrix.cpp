@@ -39,13 +39,13 @@ Matrix::~Matrix() {
     delete[] matrix;
 }
 
-double Matrix::GetMatrix(int i, int j) const {
+double Matrix::getMatrix(int i, int j) const {
     if (i >= order || j >= order || i < 0 || j < 0)
         throw out_of_range("Out of range matrix");
     return matrix[i][j];
 }
 
-void Matrix::SetMatrix(int i, int j, double value) {
+void Matrix::setMatrix(int i, int j, double value) {
     if (i >= order || j >= order || i < 0 || j < 0)
         throw out_of_range("Out of range matrix");
     matrix[i][j] = value;
@@ -74,7 +74,7 @@ char *Matrix::toString() {
     return buf;
 }
 
-void Matrix::TransposeMatrix() {
+void Matrix::transposeMatrix() {
     Matrix other(order);
     for (int i = 0; i < order; i++) {
         for (int j = 0; j < order; j++) {
@@ -207,7 +207,7 @@ double Matrix::summary() const {
 }
 
 bool operator<(const Matrix &m1, const Matrix &m2) {
-    double s1 = 0, s2 = 0;
+    double s1, s2;
     s1 = m1.summary();
     s2 = m2.summary();
     return s1 < s2;
@@ -239,7 +239,7 @@ istream &operator>>(istream &is, Matrix &m) {
     return is;
 }
 
-ofstream &BinaryIn(ofstream &os, Matrix &m) {
+ofstream &BinaryOut(ofstream &os, Matrix &m) {
     os.write((char *) &m.order, sizeof(int));
     for (int i = 0; i < m.order; ++i) {
         for (int j = 0; j < m.order; ++j) {
@@ -249,7 +249,7 @@ ofstream &BinaryIn(ofstream &os, Matrix &m) {
     return os;
 }
 
-ifstream &BinaryOut(ifstream &is, Matrix &m) {
+ifstream &BinaryIn(ifstream &is, Matrix &m) {
     is.read((char *) &m.order, sizeof(int));
     m.matrix = new double *[m.order];
     for (int i = 0; i < m.order; i++) {

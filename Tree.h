@@ -9,7 +9,7 @@ using namespace std;
 template<typename T>
 class Tree {
 public:
-    Tree() : root(nullptr), topsCount(0), valueCount(0) {}
+    Tree() : root(nullptr), topsCount(0), peaksCount(0), valueCount(0) {}
 
     ~Tree() {
         destructor(root);
@@ -21,7 +21,13 @@ public:
 
     void printTree();
 
-    int getNumberOfValues();
+    void deleteTree();
+
+    int getNumOfValues();
+
+    int getNumOfTops();
+
+    int getNumOfPeaks();
 
     T operator[](int i);
 
@@ -35,12 +41,10 @@ public:
 
     ifstream &loadFromBin(ifstream &is);
 
-//    template<typename T1>
-//    friend istream &operator>>(istream &, Tree<T1> *);
-
 private:
     TreeNode<T> *root;
     int topsCount;
+    int peaksCount;
     int valueCount;
 
     void destructor(TreeNode<T> *);
@@ -53,41 +57,26 @@ private:
 
     int checkNode(TreeNode<T> **, T *, int);
 
-    void print(TreeNode<T> *node);
+    void print(TreeNode<T> *);
 
-    int lenArray(TreeNode<T> *node);
+    int lenArray(TreeNode<T> *);
 
-    int getDepth(TreeNode<T> *node);
+    void getDepth(TreeNode<T> *, int *);
 
-    void findDepth(TreeNode<T> *node, int *n);
+    TreeNode<T> *findInd(TreeNode<T> *, int *, int, int *);
 
-    void printSt(TreeNode<T> *node);
+    void sort(TreeNode<T> *);
 
-    TreeNode<T> *findInd(TreeNode<T> *node, int *curI, int needI, int *ind);
+    ofstream &binOut(ofstream &os, TreeNode<T> *node);
 
-    void sort(TreeNode<T> *node);
-
-    ofstream &binIn(ofstream &os, TreeNode<T> *node);
-
-    ifstream &binOut(ifstream &is, TreeNode<T> *node);
-
-    void bubbleSort(TreeNode<T> **node);
+    void bubbleSort(TreeNode<T> **);
 };
 
 template<typename T>
-int Tree<T>::getDepth(TreeNode<T> *node) {
-    int depth = 0;
-
-    findDepth(node, &depth);
-
-    return depth;
-}
-
-template<typename T>
-void Tree<T>::findDepth(TreeNode<T> *node, int *n) {
+void Tree<T>::getDepth(TreeNode<T> *node, int *n) {
     if (node != nullptr) {
         (*n)++;
-        findDepth(node->left, n);
+        getDepth(node->left, n);
     }
 }
 
@@ -131,17 +120,9 @@ int Tree<T>::addValue(TreeNode<T> **node, T *data) {
     if (checkNode(node, data, 0)) {
     } else if (checkNode(&(*node)->left, data, 1)) {
     } else if (checkNode(&(*node)->right, data, 2)) {
-    } else
-        /*if (checkNode(&(*node)->left->left, data)) {
-        } else if (checkNode(&(*node)->left->right, data)) {
-        } else if (checkNode(&(*node)->right->left, data)) {
-        } else if (checkNode(&(*node)->right->right, data)) {
-        } else {*/
-    if (addValue(&(*node)->left, data)) {
+    } else if (addValue(&(*node)->left, data)) {
     } else if (addValue(&(*node)->right, data)) {
     } else { check = 0; }
-//        }
-//    }
     return check;
 
 }
@@ -173,8 +154,8 @@ int Tree<T>::checkNode(TreeNode<T> **node, T *data, int st) {
 template<typename T>
 void Tree<T>::createInterNode(TreeNode<T> *node, T *data, int st) {
     auto *newNode = new TreeNode<T>;
+    topsCount++;
 
-//    topsCount++;
     for (int i = 0; i < lenArray(node) + 1; ++i) {
         newNode->obj[i] = node->obj[i];
 
@@ -183,10 +164,12 @@ void Tree<T>::createInterNode(TreeNode<T> *node, T *data, int st) {
     for (int i = 0; i < len + 1; ++i) {
         node->obj[i] = nullptr;
     }
-
-    if (st == 2)
-        node->count = getDepth(root) - getDepth(node);
-    else node->count = getDepth(root) - getDepth(node) + 1;
+    int n = 0, m = 0;
+    if (st == 2) {
+        getDepth(root, &n);
+        getDepth(node, &m);
+        node->count = n - m;
+    } else node->count = n - m + 1;
 
     node->left = newNode;
     createEndNode(&node->right, data);
@@ -195,7 +178,7 @@ void Tree<T>::createInterNode(TreeNode<T> *node, T *data, int st) {
 
 template<typename T>
 void Tree<T>::createEndNode(TreeNode<T> **node, T *val) {
-    topsCount++;
+    peaksCount++;
     *node = new TreeNode<T>;
     int len = lenArray(*node);
     (*node)->obj[len] = val;
@@ -208,15 +191,24 @@ void Tree<T>::printTree() {
 }
 
 template<typename T>
+void Tree<T>::deleteTree() {
+    delete root;
+    root = nullptr;
+    valueCount = 0;
+    topsCount = 0;
+    peaksCount = 0;
+}
+
+template<typename T>
 void Tree<T>::print(TreeNode<T> *node) {
     if (node != nullptr) {
         for (int i = 0; i < N && node->count == 0; ++i) {
             if (node->obj[i] != nullptr) {
-                cout << *(node->obj[i]);
+                cout << *(node->obj[i]) << endl;
             } else {
-                cout << "nullptr\n";
+                cout << nullptr << endl;
             }
-            cout << endl << endl;
+            if (i == N - 1) cout << endl << endl;
         }
         print(node->left);
         print(node->right);
@@ -224,20 +216,18 @@ void Tree<T>::print(TreeNode<T> *node) {
 }
 
 template<typename T>
-int Tree<T>::getNumberOfValues() {
+int Tree<T>::getNumOfValues() {
     return valueCount;
 }
 
 template<typename T>
-void Tree<T>::printSt(TreeNode<T> *node) {
-    if (node != nullptr) {
-        if ((node->count) > 0)
-            cout << (node->count) << endl;
+int Tree<T>::getNumOfTops() {
+    return topsCount;
+}
 
-        printSt(node->left);
-        printSt(node->right);
-    }
-
+template<typename T>
+int Tree<T>::getNumOfPeaks() {
+    return peaksCount;
 }
 
 template<typename T>
@@ -268,19 +258,6 @@ T Tree<T>::operator[](int i) {
     return *(node->obj[pos]);
 }
 
-/*template<typename T>
-istream &operator>>(istream &is, Tree<T> *tree) {
-    T arr[100];
-    int i = 0;
-    while (!is.eof()) {
-        is >> arr[i];
-        (*tree).insertValue(&arr[i]);
-//    tree.printTree();
-        i++;
-    }
-    return is;
-}*/
-
 template<typename T>
 void Tree<T>::includeByInd(T *data, int i) {
     int tmp = 0, pos = 0;
@@ -305,20 +282,24 @@ void Tree<T>::sortTree() {
 template<typename T>
 void Tree<T>::sort(TreeNode<T> *node) {
     if (node != nullptr) {
-        if (node->count != 0 && lenArray(node->right) > 0 && lenArray(node->left) > 0) {
-            int len1 = lenArray(node->left);
-            int len2 = lenArray(node->right);
-            for (int i = 0; i < len1; i++) {
-                for (int j = 0; j < len2; j++) {
-                    if (*(node->right->obj[j]) < *(node->left->obj[i])) {
-                        swap(*(node->right->obj[j]), *(node->left->obj[i]));
-                    }
+        if (node->count != 0 && (lenArray(node->right) > 0 || lenArray(node->left) > 0)) {
+//            int len1 = lenArray(node->left);
+//            int len2 = lenArray(node->right);
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (node->left->obj[i] != nullptr && node->right->obj[j] != nullptr) {
+                        if (*(node->right->obj[j]) < *(node->left->obj[i]))
+                            swap(*(node->right->obj[j]), *(node->left->obj[i]));
+                    } // else swap(*(node->right->obj[j]), *(node->left->obj[i]));
+
+                    /*if (*(node->right->obj[j]) < *(node->left->obj[i]) || node->left->obj[i] == nullptr) {
+                        swap(*(node->right->obj[j]), *(node->left->obj[i]));*/
                 }
             }
             bubbleSort(&(node->left));
             bubbleSort(&(node->right));
         } else {
-            if (lenArray(node->right) == 0)
+            if (lenArray(node->right) == 0 && lenArray(node->left) != 0)
                 bubbleSort(&(node->left));
         }
         sort(node->left);
@@ -328,56 +309,50 @@ void Tree<T>::sort(TreeNode<T> *node) {
 
 template<typename T>
 void Tree<T>::bubbleSort(TreeNode<T> **node) {
-    for (int i = 0; i < lenArray(*node) - 1; i++) {
-        for (int j = 0; j < lenArray(*node) - i - 1; j++) {
-            if (*((*node)->obj[j + 1]) < *((*node)->obj[j])) {
-                swap(*((*node)->obj[j + 1]), *((*node)->obj[j]));
-            }
+    TreeNode<T> *tmp = *node;
+    for (int i = 0; i < N - 1; i++) {
+        for (int j = 0; j < N - i - 1; j++) {
+            if (tmp->obj[j] != nullptr && tmp->obj[j + 1] != nullptr) {
+                if (*(tmp->obj[j + 1]) < *(tmp->obj[j]))
+                    swap(*(tmp->obj[j + 1]), *(tmp->obj[j]));
+            } // else swap(*((*node)->obj[j + 1]), *((*node)->obj[j]));
         }
     }
+    *node = tmp;
 }
 
 template<typename T>
 ofstream &Tree<T>::saveToBin(ofstream &os) {
-    binIn(os, root);
+    binOut(os, root);
     return os;
 }
 
 template<typename T>
 ifstream &Tree<T>::loadFromBin(ifstream &is) {
-    binOut(is, root);
+    deleteTree();
+    is.seekg(0, ios::end);
+    long long size = is.tellg();
+    is.seekg(0, ios::beg);
+
+    while (is.tellg() != size) {
+        auto *matrix = new Matrix;
+        BinaryIn(is, *matrix);
+        addValue(&root, matrix);
+        valueCount++;
+    }
     return is;
 }
 
 template<typename T>
-ofstream &Tree<T>::binIn(ofstream &os, TreeNode<T> *node) {
+ofstream &Tree<T>::binOut(ofstream &os, TreeNode<T> *node) {
     if (node != nullptr) {
-            for (int i = 0; i < lenArray(node); ++i) {
-//                if (node->obj[i] != nullptr)
-                    os.write((char *) &*(node->obj[i]), sizeof(double));
-            }
-        binIn(os, node->left);
-        binIn(os, node->right);
+        for (int i = 0; i < lenArray(node); i++) {
+            BinaryOut(os, *node->obj[i]);
+        }
+        binOut(os, node->left);
+        binOut(os, node->right);
     }
     return os;
 }
-
-template<typename T>
-ifstream &Tree<T>::binOut(ifstream &is, TreeNode<T> *node) {
-
-    while (!is.eof()) {
-//        is.read((char *) &*(node->obj[i]), sizeof(double));
-    }
-    if (node != nullptr) {
-            for (int i = 0; i < lenArray(node); ++i) {
-                if (node->obj[i] != nullptr)
-                    is.read((char *) &*(node->obj[i]), sizeof(double));
-            }
-        binOut(is, node->left);
-        binOut(is, node->right);
-    }
-    return is;
-}
-
 
 #endif //COURSEWORK_3S_TREE_H

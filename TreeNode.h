@@ -3,7 +3,7 @@
 
 #include "Matrix.h"
 
-#define N 2
+#define N 3
 
 template<typename T>
 class TreeNode {

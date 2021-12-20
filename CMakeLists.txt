@@ -3,4 +3,4 @@ project(coursework_3s)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(coursework_3s main.cpp Matrix.cpp Matrix.h TreeNode.h Tree.h)
+add_executable(coursework_3s menu.cpp Matrix.cpp Matrix.h TreeNode.h Tree.h)

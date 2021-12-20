@@ -2,10 +2,8 @@
 #define LAB1_3_MATRIX_H
 
 #include <iostream>
-//#include "Tree.h"
 
 using namespace std;
-
 
 class Matrix {
 
@@ -18,13 +16,13 @@ public:
 
     ~Matrix();
 
-    virtual double GetMatrix(int i, int j) const;
+    virtual double getMatrix(int i, int j) const;
 
-    virtual void SetMatrix(int i, int j, double value);
+    virtual void setMatrix(int i, int j, double value);
 
     virtual char *toString();
 
-    virtual void TransposeMatrix();
+    virtual void transposeMatrix();
 
     friend Matrix operator+(const Matrix &m_1, const Matrix &m_2);
 
@@ -40,11 +38,11 @@ public:
 
     friend ostream &operator<<(ostream &os, const Matrix &m);
 
-    friend istream &operator>>(istream &os, Matrix &m);
+    friend istream &operator>>(istream &is, Matrix &m);
 
-    friend ofstream &BinaryIn(ofstream &os, Matrix &m);
+    friend ofstream &BinaryOut(ofstream &os, Matrix &m);
 
-    friend ifstream &BinaryOut(ifstream &os, Matrix &m);
+    friend ifstream &BinaryIn(ifstream &is, Matrix &m);
 
 protected:
     int order;
