@@ -1,3 +1,4 @@
+#pragma once
 #ifndef COURSEWORK_3S_TREENODE_H
 #define COURSEWORK_3S_TREENODE_H
 
@@ -9,13 +10,7 @@ template<typename T>
 class TreeNode {
 
 public:
-    TreeNode() {
-        right = left = nullptr;
-        count = 0;
-        for (auto &i: obj) {
-            i = nullptr;
-        }
-    }
+    TreeNode();
 
     T *obj[N + 1];
     int count;
@@ -24,3 +19,4 @@ public:
 };
 
 #endif //COURSEWORK_3S_TREENODE_H
+#include "TreeNode.inl"

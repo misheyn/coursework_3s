@@ -1,33 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include "Tree.h"
-#include "Matrix.h"
-
-// TODO sorting needs to be fixed
-
-int menu();
-
-int insert(Tree<Matrix> &tree);
-
-int enable(Tree<Matrix> &tree);
-
-int extract(Tree<Matrix> &tree);
-
-int sort(Tree<Matrix> &tree);
-
-int includeWithSort(Tree<Matrix> &tree);
-
-int saveToBin(Tree<Matrix> &tree);
-
-int loadFromBin(Tree<Matrix> &tree);
-
-void ignoreChars(int &status);
-
-int main() {
-    int status;
-    status = menu();
-    return status;
-}
+#include "menu.h"
 
 int menu() {
     Tree<Matrix> tree;

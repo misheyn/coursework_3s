@@ -1,76 +1,19 @@
-#ifndef COURSEWORK_3S_TREE_H
-#define COURSEWORK_3S_TREE_H
+#pragma once
 
-#include "TreeNode.h"
-#include <iostream>
-
-using namespace std;
+#include "Tree.h"
 
 template<typename T>
-class Tree {
-public:
-    Tree() : root(nullptr), topsCount(0), peaksCount(0), valueCount(0) {}
+Tree<T>::Tree() {
+    root = nullptr;
+    topsCount = 0;
+    peaksCount = 0;
+    valueCount = 0;
+}
 
-    ~Tree() {
-        destructor(root);
-    }
-
-    void insertValue(T *data);
-
-    void insertWithOrder(T *data);
-
-    void printTree();
-
-    void deleteTree();
-
-    int getNumOfValues();
-
-    int getNumOfTops();
-
-    int getNumOfPeaks();
-
-    T operator[](int i);
-
-    void includeByInd(T *data, int i);
-
-    T extractByInd(int i);
-
-    void sortTree();
-
-    ofstream &saveToBin(ofstream &os);
-
-    ifstream &loadFromBin(ifstream &is);
-
-private:
-    TreeNode<T> *root;
-    int topsCount;
-    int peaksCount;
-    int valueCount;
-
-    void destructor(TreeNode<T> *);
-
-    int addValue(TreeNode<T> **, T *);
-
-    void createEndNode(TreeNode<T> **, T *);
-
-    void createInterNode(TreeNode<T> *, T *, int);
-
-    int checkNode(TreeNode<T> **, T *, int);
-
-    void print(TreeNode<T> *);
-
-    int lenArray(TreeNode<T> *);
-
-    void getDepth(TreeNode<T> *, int *);
-
-    TreeNode<T> *findInd(TreeNode<T> *, int *, int, int *);
-
-    void sort(TreeNode<T> *);
-
-    ofstream &binOut(ofstream &os, TreeNode<T> *node);
-
-    void bubbleSort(TreeNode<T> **);
-};
+template<typename T>
+Tree<T>::~Tree() {
+    destructor(root);
+}
 
 template<typename T>
 void Tree<T>::getDepth(TreeNode<T> *node, int *n) {
@@ -283,17 +226,19 @@ template<typename T>
 void Tree<T>::sort(TreeNode<T> *node) {
     if (node != nullptr) {
         if (node->count != 0 && (lenArray(node->right) > 0 || lenArray(node->left) > 0)) {
-//            int len1 = lenArray(node->left);
-//            int len2 = lenArray(node->right);
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
                     if (node->left->obj[i] != nullptr && node->right->obj[j] != nullptr) {
                         if (*(node->right->obj[j]) < *(node->left->obj[i]))
                             swap(*(node->right->obj[j]), *(node->left->obj[i]));
-                    } // else swap(*(node->right->obj[j]), *(node->left->obj[i]));
-
-                    /*if (*(node->right->obj[j]) < *(node->left->obj[i]) || node->left->obj[i] == nullptr) {
-                        swap(*(node->right->obj[j]), *(node->left->obj[i]));*/
+                    } else {
+                        if (node->left->obj[i] == nullptr && node->right->obj[j] != nullptr) {
+                            T *obj;
+                            obj = node->right->obj[j];
+                            node->left->obj[i] = obj;
+                            node->right->obj[j] = nullptr;
+                        }
+                    }
                 }
             }
             bubbleSort(&(node->left));
@@ -315,7 +260,14 @@ void Tree<T>::bubbleSort(TreeNode<T> **node) {
             if (tmp->obj[j] != nullptr && tmp->obj[j + 1] != nullptr) {
                 if (*(tmp->obj[j + 1]) < *(tmp->obj[j]))
                     swap(*(tmp->obj[j + 1]), *(tmp->obj[j]));
-            } // else swap(*((*node)->obj[j + 1]), *((*node)->obj[j]));
+            } else {
+                if (tmp->obj[j] == nullptr && tmp->obj[j + 1] != nullptr) {
+                    T *obj;
+                    obj = tmp->obj[j + 1];
+                    tmp->obj[j] = obj;
+                    tmp->obj[j + 1] = nullptr;
+                }
+            }
         }
     }
     *node = tmp;
@@ -354,5 +306,3 @@ ofstream &Tree<T>::binOut(ofstream &os, TreeNode<T> *node) {
     }
     return os;
 }
-
-#endif //COURSEWORK_3S_TREE_H
