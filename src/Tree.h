@@ -60,8 +60,6 @@ private:
 
     int lenArray(TreeNode<T> *);
 
-    void getDepth(TreeNode<T> *, int *);
-
     TreeNode<T> *findInd(TreeNode<T> *, int *, int, int *);
 
     void sort(TreeNode<T> *);

@@ -16,14 +16,6 @@ Tree<T>::~Tree() {
 }
 
 template<typename T>
-void Tree<T>::getDepth(TreeNode<T> *node, int *n) {
-    if (node != nullptr) {
-        (*n)++;
-        getDepth(node->left, n);
-    }
-}
-
-template<typename T>
 int Tree<T>::lenArray(TreeNode<T> *node) {
     int i = 0;
     if (node != nullptr) {
@@ -99,6 +91,10 @@ void Tree<T>::createInterNode(TreeNode<T> *node, T *data, int st) {
     auto *newNode = new TreeNode<T>;
     topsCount++;
 
+    if (st == 2) {
+        node->count = topsCount - 1;
+    } else node->count = topsCount;
+
     for (int i = 0; i < lenArray(node) + 1; ++i) {
         newNode->obj[i] = node->obj[i];
 
@@ -107,12 +103,6 @@ void Tree<T>::createInterNode(TreeNode<T> *node, T *data, int st) {
     for (int i = 0; i < len + 1; ++i) {
         node->obj[i] = nullptr;
     }
-    int n = 0, m = 0;
-    if (st == 2) {
-        getDepth(root, &n);
-        getDepth(node, &m);
-        node->count = n - m;
-    } else node->count = n - m + 1;
 
     node->left = newNode;
     createEndNode(&node->right, data);

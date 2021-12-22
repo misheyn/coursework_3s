@@ -82,7 +82,7 @@ int menu() {
 
 int insert(Tree<Matrix> &tree) {
     int flag = 0, order = 0, k = 0, size;
-    cout << "Enter the matrix in the format: first its dimension, then the matrix itself\n";
+    cout << "Type the square matrix in the format: at first its dimension (one number), then the matrix itself\n";
     cin >> order;
     auto *mtr = new Matrix(order);
     double array[order * order];
@@ -107,7 +107,7 @@ int enable(Tree<Matrix> &tree) {
     cin >> number;
     cout << "Object number " << number << endl;
     cout << tree[number] << endl;
-    cout << "Enter the matrix in the format: first its dimension, then the matrix itself\n";
+    cout << "Type the square matrix in the format: at first its dimension (one number), then the matrix itself\n";
     cin >> order;
     auto *mtr = new Matrix(order);
     double array[order * order];
@@ -152,7 +152,7 @@ int sort(Tree<Matrix> &tree) {
 
 int includeWithSort(Tree<Matrix> &tree) {
     int flag = 0, order = 0, k = 0, size;
-    cout << "Enter the matrix in the format: first its dimension, then the matrix itself\n";
+    cout << "Type the square matrix in the format: at first its dimension (one number), then the matrix itself\n";
     cin >> order;
     auto *mtr = new Matrix(order);
     double array[order * order];
@@ -195,7 +195,8 @@ int saveToBin(Tree<Matrix> &tree) {
         } else {
             int write = 1, m;
             while (write) {
-                cout << "Enter the matrix in the format: first its dimension, then the matrix itself\n";
+                cout
+                        << "Type the square matrix in the format: at first its dimension (one number), then the matrix itself\n";
                 cin >> order;
                 auto *mtr = new Matrix(order);
                 double array[order * order];
@@ -206,7 +207,7 @@ int saveToBin(Tree<Matrix> &tree) {
                     }
                 }
                 BinaryOut(fileOut, *mtr);
-                cout << "Do you want to write more objects to a binary file? (yes [1] / no [2])\n";
+                cout << "Do you want to write more objects in a binary file? (yes [1] / no [2])\n";
                 cin >> m;
                 if (m == 2) write = 0;
             }
